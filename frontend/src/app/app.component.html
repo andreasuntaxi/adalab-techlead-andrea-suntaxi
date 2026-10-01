@@ -1,0 +1,27 @@
+<main>
+  <header><p class="eyebrow">Laboratorio ADA</p><h1>Seguimiento de proyectos</h1>
+    <p>Indicadores de actividades y avance.</p></header>
+  <section class="panel" aria-labelledby="selection-title">
+    <h2 id="selection-title">Proyecto</h2>
+    <label for="project">Seleccione un proyecto</label>
+    <select id="project" [value]="selectedId()"
+      (change)="selectProject($any($event.target).value)">
+      <option value="">Seleccione…</option>
+      @for (project of projects(); track project.id) {
+        <option [value]="project.id">{{ project.name }}</option>
+      }
+    </select>
+    <p role="status">{{ message() }}</p>
+  </section>
+  @if (summary(); as value) {
+    <section aria-labelledby="summary-title">
+      <h2 id="summary-title">{{ value.name }}</h2>
+      <div class="cards">
+        <article><h3>Actividades</h3><strong>{{ value.activity_count }}</strong></article>
+        <article><h3>Completadas</h3><strong>{{ value.completed_count }}</strong></article>
+        <article><h3>Horas totales</h3><strong>{{ value.total_hours | number:'1.0-2' }}</strong></article>
+        <article><h3>Avance</h3><strong>{{ value.completion_rate | percent:'1.0-1' }}</strong></article>
+      </div>
+    </section>
+  }
+</main>

@@ -15,3 +15,7 @@ Si no utilizó IA, describa cómo verificó una modificación propia.
 
 ## Trabajo pendiente y continuidad
 Proponga tres tareas concretas para un equipo de estudiantes, con criterios de aceptación.
+
+## Integración frontend/backend
+Describa estados, peticiones, datos reales, pruebas de frontend y comando de build.
+Adjunte captura del dashboard y evidencia del manejo de errores.
