@@ -77,7 +77,7 @@ Abra http://localhost:4200; API y documentación local en http://localhost:8000/
 El proxy local reenvía /api/** a http://127.0.0.1:8000, retirando el prefijo /api.
 Para compilar Angular: `npm run build` desde frontend/.
 
-## Contratos obligatorios
+## Contratos
 
 | Ruta | Resultado esperado |
 |---|---|
@@ -110,7 +110,7 @@ si no hay actividades. No mezcle actividades de proyectos diferentes.
 Chatbots (64b000000000000000000002) no tiene actividades: sus cuatro indicadores
 son cero. Se acepta tolerancia de 1e-6 para cálculos decimales.
 
-## Dashboard obligatorio en Angular 21
+## Dashboard en Angular 21
 
 Se proporciona un esqueleto compilable con HttpClient, tipos, selector y tarjetas.
 La lista está conectada; el método summary y su consumo están pendientes.
@@ -184,8 +184,8 @@ Referencias oficiales:
 4. Identifique hasta tres problemas prioritarios y corrija al menos uno.
 5. Despliegue en Render, cargue Atlas y documente la verificación.
 
-Entregue repositorio o ZIP y un único informe breve: DECISIONS.md. Incluya allí URLs
-del dashboard y API, comandos de ejecución/build/pruebas, configuración sin secretos,
+Entregue un enlace a un repositorio en Github y un único informe breve: DECISIONS.md. Incluya allí URLs
+del dashboard desplegado y API, comandos de ejecución/build/pruebas, configuración sin secretos,
 los tres hallazgos, corrección verificada, herramientas utilizadas y pendientes.
 Adjunte una captura del dashboard con datos reales y evidencia de un estado de error.
 No incluya node_modules, entornos virtuales ni credenciales. Se evalúan correctitud,
