@@ -26,7 +26,6 @@ export class AppComponent implements OnInit {
   selectProject(projectId: string): void {
     this.selectedId.set(projectId);
     // TODO: completar el flujo de carga, resultado y error del resumen.
-    // Considerar cambios de selección antes de terminar una petición.
     this.message.set('La consulta del resumen está pendiente de implementación.');
   }
 }

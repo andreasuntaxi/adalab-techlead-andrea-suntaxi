@@ -1,21 +1,22 @@
-# Decisiones técnicas
+# Informe de entrega
 
-## Diagnóstico y arquitectura inicial
+## URLs y ejecución
+Dashboard Render:
+API Render:
+Comandos locales, build y pruebas:
 
-## Hasta cinco problemas prioritarios
-Para cada uno: ubicación, reproducción/evidencia, consecuencia, prioridad,
-corrección realizada o propuesta y forma de verificación.
+## Hasta tres problemas prioritarios
+Ubicación, evidencia, consecuencia y solución. Señale al menos una corrección
+realizada y cómo la verificó.
 
-## Cambios y pruebas
-Indique comandos, resultados y limitaciones de la verificación.
+## Despliegue y configuración
+Servicios, versiones, comandos, nombres de variables (sin valores secretos),
+conexión a Atlas, carga de fixture y pasos reproducibles.
 
-## Uso de herramientas
-Indique herramientas usadas y cómo verificó una modificación asistida por IA.
-Si no utilizó IA, describa cómo verificó una modificación propia.
+## Verificación
+Resultado de pruebas backend y frontend; SAT y Chatbots en navegador con datos reales;
+captura del dashboard y evidencia de manejo de error. Limitaciones observadas.
 
-## Trabajo pendiente y continuidad
-Proponga tres tareas concretas para un equipo de estudiantes, con criterios de aceptación.
-
-## Integración frontend/backend
-Describa estados, peticiones, datos reales, pruebas de frontend y comando de build.
-Adjunte captura del dashboard y evidencia del manejo de errores.
+## Herramientas y pendientes
+Herramientas usadas y cómo verificó una modificación asistida por IA (o propia si
+no utilizó IA). Trabajo no completado. Incidencias del proveedor con evidencia, si aplica.

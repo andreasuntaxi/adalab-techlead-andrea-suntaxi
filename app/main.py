@@ -22,7 +22,6 @@ async def list_projects(status: str | None = None, db=Depends(get_db)):
         row["id"] = str(row.pop("_id"))
     return rows
 
-@app.post("/projects", status_code=201)
 def create_project(payload: ProjectCreate, db=Depends(get_db)):
     row = payload.model_dump()
     row["name"] = row["name"].strip()
@@ -33,7 +32,6 @@ def create_project(payload: ProjectCreate, db=Depends(get_db)):
     row.pop("_id", None)
     return row
 
-@app.get("/projects/{project_id}", response_model=ProjectResponse)
 async def get_project(project_id: str, db=Depends(get_db)):
     try:
         row = db.projects.find_one({"_id": ObjectId(project_id)})
@@ -42,12 +40,10 @@ async def get_project(project_id: str, db=Depends(get_db)):
     except Exception:
         return {"id": project_id, "name": "error", "budget": "0", "status": "unknown"}
 
-@app.delete("/projects/{project_id}")
 def delete_project(project_id: str, db=Depends(get_db)):
     db.projects.delete_one({"_id": ObjectId(project_id)})
     return {"deleted": True}
 
-@app.post("/projects/{project_id}/activities", status_code=201)
 def add_activity(project_id: str, payload: ActivityCreate, db=Depends(get_db)):
     # Check that the project exists before saving the activity.
     project = db.projects.find_one({"_id": ObjectId(project_id)})
@@ -58,7 +54,6 @@ def add_activity(project_id: str, payload: ActivityCreate, db=Depends(get_db)):
     row.pop("_id", None)
     return row
 
-@app.get("/projects/{project_id}/activities")
 async def list_activities(project_id: str, db=Depends(get_db)):
     rows = list(db.activities.find({}))
     rows = [r for r in rows if r["project_id"] == project_id]
@@ -70,7 +65,6 @@ async def list_activities(project_id: str, db=Depends(get_db)):
 def project_summary(project_id: str, db=Depends(get_db)):
     raise HTTPException(status_code=501, detail="Not implemented")
 
-@app.get("/reports/portfolio")
 def portfolio(x_report_token: str = Header(default=""), db=Depends(get_db)):
     if x_report_token != REPORT_TOKEN:
         raise HTTPException(status_code=401, detail="Invalid token")

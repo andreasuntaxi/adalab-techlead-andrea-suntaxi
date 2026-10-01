@@ -1,26 +1,49 @@
 # Proceso de Selección: Desarrollo Web / Líder Técnico - Laboratorio de Ciencia de Datos ADA
 
-## Prueba técnica ADA: mantenimiento e integración de un sistema heredado
+## Prueba técnica: del repositorio heredado al dashboard desplegado
 
-Un equipo de desarrolladores junior construyó parcialmente una API de seguimiento de proyectos.
-Usted se incorpora como responsable técnico. Revise el sistema, complete el resumen
-de proyecto y corrija los problemas prioritarios. El código y sus pruebas necesitan
-revisión; una prueba que pasa no demuestra por sí sola que el comportamiento sea correcto.
-Todos los datos y credenciales del ejercicio son ficticios.
+## Objetivo del sistema
+
+El sistema permite a la coordinación de un laboratorio consultar el estado de las
+actividades de sus proyectos desde un dashboard web. Cada proyecto tiene un nombre,
+presupuesto y estado; sus actividades registran título, horas estimadas y si están
+completadas. Al seleccionar un proyecto, el dashboard muestra cantidad de actividades,
+cantidad completada, horas totales y proporción de actividades completadas.
+
+La finalidad es disponer de una vista sencilla para seguimiento y conversación con
+el equipo. El avance representa actividades completadas / actividades totales:
+no está ponderado por horas ni mide impacto o ejecución presupuestaria. Las horas
+son la suma de las horas registradas, tanto completadas como pendientes.
+
+Los datos ficticios incluyen SAT y Chatbots. La información se almacena en MongoDB,
+FastAPI la consulta y calcula los indicadores, y Angular 21 los presenta. La entrega
+debe demostrar el flujo completo navegador → API → MongoDB en la nube.
+
+## Escenario de la prueba
+
+Un equipo de desarrolladores junior (estudiantes) dejó este repositorio parcialmente construido. Usted se
+incorpora como responsable técnico. Complete el flujo obligatorio y revise críticamente
+el código heredado: algunas implementaciones y pruebas parecen correctas, pero necesitan
+verificación. No se espera resolver toda la deuda técnica.
 
 ## Alcance y tiempo
 
-Tiempo de trabajo: 180 minutos, después de disponer de Python 3.12, Node.js y las dependencias.
-Reserve unos 20 minutos para documentar. No se espera resolver toda la deuda.
-La descarga inicial de imágenes/dependencias y problemas de infraestructura ajenos
-al candidato no consumen tiempo de evaluación. Se permite documentación, Internet,
-ChatGPT, Claude Code, Gemini y otros asistentes. Declare su uso en DECISIONS.md.
+Objetivo: 180 minutos de trabajo; reserve unos 20 minutos para documentar.
+Python 3.12, Node.js 22.12+ de la rama 22 o Node.js 24 y cuentas Render y MongoDB Atlas
+preparadas antes de iniciar. Descargas iniciales, esperas de despliegue e incidencias
+del proveedor no consumen tiempo de trabajo. El tiempo debe confirmarse en un piloto.
+Se permiten documentación, Internet, ChatGPT, Claude Code, Gemini y otros asistentes;
+registre brevemente su uso y cómo verificó una modificación.
 
-El alcance incluye backend Python/FastAPI, MongoDB, Docker y un dashboard pequeño
-en Angular 21. El frontend es obligatorio; se proporciona un esqueleto compilable
-para dedicar el tiempo a integración y comportamiento, no a crear el proyecto.
+Solo se exige completar GET /projects y GET /projects/{id}/summary, el dashboard y
+el despliegue. GET /health está preparado. El código heredado de creación, eliminación,
+actividades individuales y reportes permanece como material de revisión, pero sus
+funciones no están publicadas como rutas y no necesitan corrección obligatoria.
+Docker/Compose se conservan como material opcional; no se exige repararlos.
 
-## Ejecución local
+## Preparación y ejecución local
+
+Desde la raíz del repositorio:
 
 ```bash
 python3.12 -m venv .venv
@@ -29,47 +52,47 @@ python -m pip install -r requirements.txt
 python -m pytest -q
 ```
 
-Los tests usan mongomock y no requieren MongoDB ni Docker. Para ejecutar la API real,
-inicie una instancia local de MongoDB en el puerto 27017 y ejecute:
+Los tests usan mongomock y no requieren MongoDB. Para la API real, conecte una base
+de prueba local o Atlas, adapte la configuración y ejecute:
 
 ```bash
 python -m scripts.seed
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Documentación interactiva: http://localhost:8000/docs.
-También se proporciona `docker compose up --build`. Su configuración forma parte
- de la revisión; el arranque de contenedores no garantiza conectividad funcional.
-Después de corregirlo, cargue datos con `docker compose exec api python -m scripts.seed`.
-`.env.example` documenta variables previstas; compruebe su uso efectivo.
+La configuración inicial usa localhost y debe adaptarse para respetar variables de
+entorno. `.env.example` sirve de referencia; no implica que la aplicación ya las lea
+ni que cargue automáticamente un archivo .env. Puede exportar las variables en su
+terminal. Nunca comparta valores de credenciales. La fixture es idempotente.
 
-## Contrato esperado
+En otra terminal:
 
-IDs: cadenas hexadecimales de ObjectId de 24 caracteres. ID inválido: HTTP 422;
-entidad inexistente: 404. Una indisponibilidad de persistencia debe devolver 503,
-sin detalles internos, y quedar registrada en logs. Los cambios no deben romper
-los casos válidos existentes. Se permite cambiar organización interna y añadir dependencias.
-No se exige una estructura particular de capas.
+```bash
+cd frontend
+npm ci
+npm start
+```
 
-| Método y ruta | Comportamiento esperado |
+Abra http://localhost:4200; API y documentación local en http://localhost:8000/docs.
+El proxy local reenvía /api/** a http://127.0.0.1:8000, retirando el prefijo /api.
+Para compilar Angular: `npm run build` desde frontend/.
+
+## Contratos obligatorios
+
+| Ruta | Resultado esperado |
 |---|---|
-| GET /health | 200, señal de proceso vivo; no certifica disponibilidad de DB |
-| GET /projects?status=active | 200, lista; filtro opcional active o archived; otro valor 422 |
-| POST /projects | 201; nombre no vacío tras strip, máximo 120 caracteres; presupuesto numérico finito ≥0; status active o archived |
-| GET /projects/{id} | 200; id, name, budget numérico, status; no exponer _id ni metadata |
-| DELETE /projects/{id} | 200 y {"deleted":true}; eliminar también sus actividades; 404 si no existe |
-| POST /projects/{id}/activities | 201; comprobar proyecto; title no vacío tras strip, máximo 120; hours finitas ≥0; completed booleano |
-| GET /projects/{id}/activities | 200 lista; 404 si no existe proyecto, incluso si lista vacía |
-| GET /projects/{id}/summary | 200 con contrato definido abajo |
-| GET /reports/portfolio | 200 con token correcto en X-Report-Token; 401 en otro caso; conservar formato y cálculos válidos existentes |
+| GET /health | 200, {"status":"ok"}; señal de proceso vivo |
+| GET /projects | 200, lista de proyectos; [] si no hay proyectos |
+| GET /projects/{id}/summary | 200 con los indicadores definidos abajo |
 
-Rechace booleanos como budget/hours. No se exige unicidad de nombres ni autenticación
-general; el token de reportes sirve solo para revisar configuración. No añada correo,
-servicios externos ni nuevas funciones. Mantenga los nombres de campos del contrato.
+Cada proyecto de la lista debe tener id (ObjectId serializado como cadena), name,
+budget numérico y status. No exponga _id ni metadata interna. No se exige filtro
+por status; el filtro heredado es opcional y no forma parte de la evaluación obligatoria.
+Para summary: ID con formato inválido → 422; ID válido sin proyecto → 404.
+Para una indisponibilidad de persistencia, devolver un error HTTP y no datos ficticios
+con 200; no se exige un código específico ni pruebas exhaustivas de infraestructura.
 
-## Funcionalidad por completar
-
-`GET /projects/{id}/summary` debe devolver exactamente estos campos:
+Ejemplo de resumen SAT:
 
 ```json
 {
@@ -82,87 +105,104 @@ servicios externos ni nuevas funciones. Mantenga los nombres de campos del contr
 }
 ```
 
-completion_rate = completed_count / activity_count, entre 0 y 1; si no hay
-actividades, todos los indicadores son cero. total_hours suma todas las actividades,
-completadas o no. No mezcle actividades de otros proyectos. Se aceptan diferencias
-de redondeo de 1e-6. El proyecto Chatbots de la fixture no tiene actividades.
+El resumen devuelve estos seis campos. completion_rate está entre 0 y 1 y vale cero
+si no hay actividades. No mezcle actividades de proyectos diferentes.
+Chatbots (64b000000000000000000002) no tiene actividades: sus cuatro indicadores
+son cero. Se acepta tolerancia de 1e-6 para cálculos decimales.
 
-## Dashboard Angular 21 (obligatorio)
+## Dashboard obligatorio en Angular 21
 
-Se proporciona `frontend/` con Angular 21.0.0, componentes standalone, tipos,
-HttpClient, selector y tarjetas. La consulta de lista está implementada; la consulta
-del resumen y su manejo de estados están pendientes. No sustituya Angular por otro framework.
+Se proporciona un esqueleto compilable con HttpClient, tipos, selector y tarjetas.
+La lista está conectada; el método summary y su consumo están pendientes.
 
-Requisitos de entorno: Node.js 22.12+ de la rama 22 o Node.js 24; TypeScript 5.9.
-Las versiones están fijadas en package.json y package-lock.json.
+- Cargue la lista desde la API y permita seleccionar un proyecto.
+- Muestre nombre, actividades, completadas, horas totales y avance en porcentaje.
+- Muestre estado de carga y mensaje visible ante fallos de lista o resumen.
+- Presente ceros cuando no hay actividades; si la lista está vacía, indíquelo.
+- Limpie indicadores anteriores al cambiar/deseleccionar proyecto o ante un error.
+- Mantenga etiquetas accesibles y legibilidad en móvil y escritorio.
 
-```bash
-cd frontend
-npm ci
-npm start
-```
+No se exige botón de reintento ni prueba de respuestas fuera de orden. Tampoco
+login, CRUD visual, gráficas o una librería de UI. Los datos deben proceder de la
+API y MongoDB reales; mocks son válidos únicamente en pruebas.
 
-Abra http://localhost:4200. El proxy de desarrollo dirige `/api/**` al backend en
-http://127.0.0.1:8000 y elimina el prefijo `/api`; las rutas FastAPI no cambian.
-Para otro servidor, cambie el destino del proxy y reinicie ng serve. No incruste
-credenciales ni el token privado de reportes en el navegador. El proxy evita necesitar
-CORS en desarrollo; no es una configuración de despliegue para producción.
+## Revisión técnica y pruebas
 
-Complete estos comportamientos:
+Identifique hasta tres problemas prioritarios del código o las pruebas heredadas.
+Para cada uno indique ubicación, evidencia, consecuencia y solución. Corrija al menos
+uno y verifique su corrección; puede ser parte de los cambios del flujo obligatorio.
+No se exige refactorización independiente ni una arquitectura particular.
 
-- Obtener proyectos de GET /projects; mostrar carga, lista vacía y fallo de lista.
-- Al seleccionar un proyecto, consultar GET /projects/{id}/summary y mostrar
-  nombre, cantidad de actividades, completadas, horas y avance en porcentaje.
-- Mostrar carga y error visible del resumen, con una acción para reintentar.
-- Al cambiar o deseleccionar proyecto, no mostrar indicadores de la selección anterior.
-  Si hay respuestas fuera de orden, la interfaz debe conservar la última selección.
-- Mostrar ceros correctamente cuando el proyecto no tiene actividades.
-- Mantener una interfaz legible en móvil y escritorio, con etiquetas accesibles.
-- Añadir al menos dos pruebas automatizadas de frontend: una de integración HTTP
-  del servicio/flujo y otra de error o cambio de selección. Se permite elegir el runner;
-  documente cómo ejecutarlas. Las pruebas deben ejercitar código productivo.
+Verifique al menos tres casos de backend: resumen correcto, proyecto inexistente y
+proyecto sin actividades. Las pruebas públicas ya los plantean: complételas o
+fortalézcalas; no necesita duplicarlas. Mantenga también la prueba de ID inválido.
+Añada una prueba automatizada útil de frontend que ejercite código productivo
+(servicio HTTP o componente, por ejemplo resultado o error). Elija el runner y
+registre el comando de ejecución. `review_examples/` contiene una prueba heredada
+para inspección; no pertenece a la suite obligatoria.
 
-No se piden gráficas, login, CRUD visual, librerías de UI ni diseño sofisticado.
-Los datos deben proceder del backend real: no usar fixtures incrustadas como solución.
-Mocks son válidos exclusivamente en pruebas. Dockerizar el frontend es opcional;
-la ejecución local con npm es suficiente, y `npm run build` debe funcionar.
+## Despliegue
 
-Aceptación con la fixture: SAT debe mostrar 3 actividades, 2 completadas, 35 horas y
-66.7 % aproximadamente; Chatbots, ceros. Demuestre el flujo navegador → FastAPI →
-MongoDB, y documente la verificación en DECISIONS.md. Incluya una captura del dashboard
-con datos reales y evidencia del manejo de un error.
+Publique Angular como Render Static Site y FastAPI como Render Web Service gratuito.
+Use MongoDB Atlas Free para persistencia. No se exige Docker, dominio propio ni CI/CD
+personalizado. No use una base real del laboratorio ni credenciales institucionales.
+
+Referencias de configuración (confirme y adapte en su entrega):
+
+| Servicio | Configuración de referencia |
+|---|---|
+| FastAPI | Raíz del repositorio; runtime Python 3.12; build: pip install -r requirements.txt |
+| Arranque API | uvicorn app.main:app --host 0.0.0.0 --port $PORT |
+| Angular | Root Directory: frontend; Node.js 24; build: npm ci && npm run build |
+| Publicación Angular | dist/dashboard/browser, relativa a frontend |
+| Variables backend | MONGO_URL, DATABASE y origen permitido del dashboard según su implementación |
+
+El proxy de ng serve no se publica en el build: configure la URL HTTPS de la API
+para el frontend desplegado o una ruta equivalente. Configure CORS para el origen
+concreto del dashboard si usa dominios separados. Una URL pública de API no es un
+secreto; credenciales de MongoDB y tokens privados nunca deben llegar al bundle Angular.
+Configure usuario y acceso de red de Atlas y documente el procedimiento sin secretos.
+
+Cargue la fixture desde su equipo con `python -m scripts.seed`, apuntando a Atlas
+mediante variables de entorno. No se requiere shell remoto en Render. Confirme
+persistencia y que dashboard y API consultan esa misma base. El servicio gratuito
+puede suspenderse tras inactividad; no se evalúa la velocidad del primer arranque.
+Si una restricción de cuenta o incidencia del proveedor bloquea el deploy, documente
+evidencia y entregue una demostración local grabada para revisión del evaluador.
+
+Referencias oficiales:
+- https://render.com/docs/deploy-fastapi
+- https://render.com/docs/static-sites
+- https://render.com/docs/free
+- https://www.mongodb.com/docs/atlas/tutorial/deploy-free-tier-cluster/
 
 ## Tareas y entrega
 
-1. Ejecute la suite y describa arquitectura y estado inicial.
-2. Complete el resumen y corrija comportamientos que incumplan el contrato.
-3. Documente hasta cinco problemas prioritarios, con evidencia e impacto.
-4. Refactorice un componente y agregue pruebas de regresión y casos negativos.
-5. Prepare configuración y Docker para ejecución reproducible.
-6. Complete el dashboard Angular 21 y pruebe su integración con el backend.
-7. Complete DECISIONS.md con cambios, verificación, pendientes y continuidad del equipo.
+1. Ejecute y comprenda el repositorio.
+2. Complete los dos endpoints obligatorios y sus pruebas.
+3. Complete el dashboard Angular y una prueba automatizada de frontend.
+4. Identifique hasta tres problemas prioritarios y corrija al menos uno.
+5. Despliegue en Render, cargue Atlas y documente la verificación.
 
-Entregue la solución en un repositorio Git público, con instrucciones reproducibles y DECISIONS.md.  No incluya
-entornos virtuales, datos personales ni credenciales reales. No cambie pruebas para
-ocultar fallos; puede reemplazar pruebas deficientes explicando por qué. La evaluación
-privilegia correctitud, pruebas útiles, criterio y mantenibilidad. No se premia volumen
- de código ni número de problemas cosméticos. Documente lo que no logró terminar.
+Entregue repositorio o ZIP y un único informe breve: DECISIONS.md. Incluya allí URLs
+del dashboard y API, comandos de ejecución/build/pruebas, configuración sin secretos,
+los tres hallazgos, corrección verificada, herramientas utilizadas y pendientes.
+Adjunte una captura del dashboard con datos reales y evidencia de un estado de error.
+No incluya node_modules, entornos virtuales ni credenciales. Se evalúan correctitud,
+integración, criterio y reproducibilidad; no volumen de código ni decoración.
 
 ## Estructura
 
 ```text
-frontend/          dashboard Angular 21 y proxy de desarrollo
-app/               API, modelos, configuración y conexión MongoDB
-scripts/seed.py    fixture idempotente de proyectos y actividades
-tests/             pruebas públicas y fixtures aisladas
-requirements.txt   dependencias de ejecución y pruebas
-pytest.ini         configuración de pytest
-Dockerfile         imagen de la API
-compose.yaml       API y MongoDB
-.env.example       configuración prevista
-DECISIONS.md       informe del candidato
+app/               backend y código heredado para revisión
+frontend/          dashboard Angular 21, servicio HTTP y proxy local
+scripts/seed.py    datos ficticios idempotentes
+tests/            suite obligatoria de backend
+review_examples/   ejemplo de prueba heredada para inspección
+DECISIONS.md       único informe de entrega
+Dockerfile         material opcional de revisión
+compose.yaml       material opcional de revisión
 ```
-
 
 ## Inventario completo
 
@@ -194,6 +234,7 @@ frontend/tsconfig.app.json
 frontend/tsconfig.json
 pytest.ini
 requirements.txt
+review_examples/test_legacy_mock.py
 scripts/__init__.py
 scripts/seed.py
 tests/conftest.py
