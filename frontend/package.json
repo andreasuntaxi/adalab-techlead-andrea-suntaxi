@@ -21,6 +21,8 @@
     "@angular/build": "21.0.0",
     "@angular/cli": "21.0.0",
     "@angular/compiler-cli": "21.0.0",
-    "typescript": "5.9.3"
+    "jsdom": "^30.1.2",
+    "typescript": "5.9.3",
+    "vitest": "^4.1.11"
   }
 }

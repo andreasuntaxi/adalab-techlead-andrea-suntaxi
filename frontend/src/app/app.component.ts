@@ -14,18 +14,50 @@ export class AppComponent implements OnInit {
   readonly projects = signal<Project[]>([]);
   readonly selectedId = signal('');
   readonly summary = signal<ProjectSummary | null>(null);
-  readonly message = signal('Seleccione un proyecto para consultar sus indicadores.');
+  readonly message = signal('Cargando proyectos...');
 
   ngOnInit(): void {
     this.api.list().subscribe({
-      next: projects => this.projects.set(projects),
-      error: () => this.message.set('No se pudo cargar la lista de proyectos.'),
+      next: projects => {
+        this.projects.set(projects);
+        this.message.set(
+          projects.length
+            ? 'Seleccione un proyecto para consultar sus indicadores.'
+            : 'No hay proyectos disponibles.'
+        );
+      },
+      error: () => {
+        this.projects.set([]);
+        this.summary.set(null);
+        this.message.set('No se pudo cargar la lista de proyectos.');
+      },
     });
   }
 
   selectProject(projectId: string): void {
     this.selectedId.set(projectId);
-    // TODO: completar el flujo de carga, resultado y error del resumen.
-    this.message.set('La consulta del resumen está pendiente de implementación.');
+    this.summary.set(null);
+
+    if (!projectId) {
+      this.message.set('Seleccione un proyecto para consultar sus indicadores.');
+      return;
+    }
+
+    this.message.set('Cargando indicadores...');
+
+    this.api.summary(projectId).subscribe({
+      next: value => {
+        if (this.selectedId() !== projectId) return;
+
+        this.summary.set(value);
+        this.message.set('Indicadores cargados.');
+      },
+      error: () => {
+        if (this.selectedId() !== projectId) return;
+
+        this.summary.set(null);
+        this.message.set('No se pudieron cargar los indicadores del proyecto.');
+      },
+    });
   }
 }
