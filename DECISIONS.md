@@ -5,7 +5,7 @@
 
 
 Dashboard Render:https://ada-dashboard-andrea-suntaxi.onrender.com/
-API Render: https://adalab-techlead-andrea-suntaxi.onrender.com/
+API Render: https://adalab-techlead-andrea-suntaxi.onrender.com/docs
 Repositorio: https://github.com/andreasuntaxi/adalab-techlead-andrea-suntaxi
 
 
