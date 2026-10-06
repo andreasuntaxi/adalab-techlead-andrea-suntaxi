@@ -45,7 +45,7 @@ describe('ProjectsService', () => {
     });
 
     const request = httpMock.expectOne(
-      `/api/projects/${projectId}/summary`
+      `https://adalab-techlead-andrea-suntaxi.onrender.com/projects/${projectId}/summary`
     );
 
     expect(request.request.method).toBe('GET');

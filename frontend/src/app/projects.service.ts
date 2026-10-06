@@ -6,7 +6,8 @@ import { Project, ProjectSummary } from './project.models';
 @Injectable({ providedIn: 'root' })
 export class ProjectsService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = '/api';
+  private readonly baseUrl =
+  'https://adalab-techlead-andrea-suntaxi.onrender.com';
 
   list(): Observable<Project[]> {
     return this.http.get<Project[]>(`${this.baseUrl}/projects`);
